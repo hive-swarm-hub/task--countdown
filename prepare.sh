@@ -4,22 +4,14 @@ mkdir -p data
 echo "Downloading Countdown..."
 python3 << 'PY'
 from datasets import load_dataset
-import json, pathlib, random
-random.seed(42)
-train = list(load_dataset('predibase/countdown', split='train[:500]'))
-random.shuffle(train)
-with pathlib.Path('data/train.jsonl').open('w') as f:
-    for row in train[:100]:
+import json, pathlib
+ds = load_dataset('predibase/countdown', split='test')
+out = pathlib.Path('data/test.jsonl')
+with out.open('w') as f:
+    for row in ds:
         q = row.get('question', row.get('prompt', ''))
         a = str(row.get('answer', row.get('target', '')))
         f.write(json.dumps({"question": q, "answer": a}) + '\n')
-test = list(load_dataset('predibase/countdown', split='test[:500]'))
-random.shuffle(test)
-with pathlib.Path('data/test.jsonl').open('w') as f:
-    for row in test[:150]:
-        q = row.get('question', row.get('prompt', ''))
-        a = str(row.get('answer', row.get('target', '')))
-        f.write(json.dumps({"question": q, "answer": a}) + '\n')
-print('Train: 100, Test: 150')
+print(f'Wrote {len(ds)} problems to {out}')
 PY
 echo "Done."
